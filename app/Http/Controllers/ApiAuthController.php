@@ -25,6 +25,29 @@ class ApiAuthController extends Controller
         }
         $error=false;
         return response()->json(['token'=>$token, 'error'=>$error]);
+    }
+
+    public function UserAuthToken(Request $request){
+        $error=true;
+        $user=null;
+
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            $token = str_replace("Bearer ", "", $request->header('Authorization'));
+            $error =false;
+        }catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            //return response()->json(['token_expired'], $e->getStatusCode());
+            return response()->json(['msg' => 'El token ha expirado', 'error' => $error]);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            //return response()->json(['token_invalid'], $e->getStatusCode());
+            return response()->json(['msg' => 'El token es invalido', 'error' => $error]);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            //return response()->json(['token_absent'], $e->getStatusCode());
+            return response()->json(['msg' => 'No se ha enviado el token', 'error' => $error]);
+        }
+
+        return response()->json(['user' => $user, 'error' => $error]);
+
 
     }
 
@@ -62,6 +85,27 @@ class ApiAuthController extends Controller
                 //return response()->json(compact('token'));
                 return response()->json(['token'=>$token, 'error'=>$error]);
             }
+    }
+
+
+    public function ActualizarTipoUsuario(Request $request){
+        $error=true;
+        $user=null;
+        $user_id=$request->input('user_id');
+        $user_tipo=$request->input('tipo');
+        $msg="";
+
+        $user= User::find($user_id);
+        $user->tipo=$user_tipo;
+        if($user->save()){
+            $error=false;
+        }
+        else{
+            $msg="Ocurrio un error inesperado";
+        }
+
+        return response()->json(['user' => $user, 'error' => $error, 'msg' => $msg]);
+
     }
 
     

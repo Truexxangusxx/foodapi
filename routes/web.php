@@ -20,4 +20,7 @@ Route::group(['middleware' => 'cors'], function(){
     Route::post('/signup', 'ApiAuthController@signup');
     Route::post('/validator', 'Auth\RegisterController@validator');
     Route::post('/create', 'Auth\RegisterController@create');
+    Route::post('/auth_token', 'ApiAuthController@UserAuthToken');
+    Route::post('/ActualizarTipoUsuario', 'ApiAuthController@ActualizarTipoUsuario');
+    Route::post('/GustosListar', 'ApiController@GustosListar');
 });
