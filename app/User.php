@@ -18,6 +18,19 @@ class User extends Authenticatable
         'name', 'email', 'password', 'tipo',
     ];
 
+
+    public function gustos()
+    {
+        return $this->belongsToMany('App\Gusto')->withTimestamps();
+    }
+    
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['gustos'] = $this->gustos;
+        return $array;
+    }
+
     /**
      * The attributes that should be hidden for arrays.
      *

@@ -23,4 +23,12 @@ Route::group(['middleware' => 'cors'], function(){
     Route::post('/auth_token', 'ApiAuthController@UserAuthToken');
     Route::post('/ActualizarTipoUsuario', 'ApiAuthController@ActualizarTipoUsuario');
     Route::post('/GustosListar', 'ApiController@GustosListar');
+    Route::post('/GustosAgregar', 'ApiController@GustosAgregar');
+    Route::get('/imagen', 'ApiController@imagen');
+    Route::get('/icon', 'ApiController@icon');
+    Route::get('/marca', 'ApiController@marca');
+    Route::post('/ProveedorGuardar', 'ApiController@ProveedorGuardar');
+    Route::post('/ProveedorListar', 'ApiController@ProveedorListar');
+    Route::post('/SubirImagen', 'ApiController@SubirImagen');
+    Route::get('/buscarimagen', 'ApiController@buscarimagen');
 });
