@@ -7,6 +7,8 @@ use App\User;
 use App\Gusto;
 use Storage;
 use App\Proveedor;
+use App\Like;
+use App\Menu;
 
 class ApiController extends Controller
 {
@@ -133,12 +135,101 @@ class ApiController extends Controller
             return response()->json(['lista'=>$lista,'error'=>$error, 'msg'=>$msg]);
     }
     
+    public function ProveedorObtener(Request $request){
+            $error=true;
+            $msg="ocurrio un error inesperado";
+            
+            $id=$request->input('id');
+            
+            $proveedor=Proveedor::find($id);
+            $error=false;
+            $msg="datos obtenidos sin problema";
+
+            return response()->json(['proveedor'=>$proveedor,'error'=>$error, 'msg'=>$msg]);
+    }
+    
     public function SubirImagen(Request $request){
         
         $file = request()->file('archivo');
         $file->storeAs('images', $file->getClientOriginalName());
         return $file->getClientOriginalName();
          
+    }
+    public function validarusuario(Request $request){
+        
+        $error=true;
+        $msg="ocurrio un error inesperado";
+        
+        $tipo=0;
+        $estipo=false;
+        $gustos=false;
+        $gusto_id=$request->input('gusto_id');
+        $user = User::find($user_id);
+        
+        if ($user->tipo!=null){
+            $estipo=true;
+            $tipo=$user->tipo;
+        }
+        if ($user->gustos()->get()->count()>0){
+            $gustos=true;
+        }
+        
+        return response()->json(['tipo'=>$tipo,'estipo'=>$estipo,'gustos'=>$gustos,'error'=>$error, 'msg'=>$msg]);
+         
+    }
+    
+    public function ingresarlike(Request $request){
+        $error=true;
+        $msg="";
+        $user_id=$request->input("user_id");
+        $proveedor_id=$request->input("proveedor_id");
+        
+        $like=new Like;
+        $like->user_id=$user_id;
+        $like->proveedor_id=$proveedor_id;
+        $like->save();
+        $error=false;
+        
+        return response()->json(['like'=>$like,'error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function eliminarlike(Request $request){
+        $error=true;
+        $msg="";
+        $user_id=$request->input("user_id");
+        $proveedor_id=$request->input("proveedor_id");
+        
+        $like=Like::where("user_id",$user_id)->where("proveedor_id",$proveedor_id)->get()->first();
+        $like->delete();
+        $error=false;
+        
+        return response()->json(['error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function likes(Request $request){
+        $error=true;
+        $msg="";
+        $user_id=$request->input("user_id");
+        $proveedor_id=$request->input("proveedor_id");
+        
+        $likeuser=Like::where("user_id",$user_id)->where("proveedor_id",$proveedor_id)->count();
+        $likes=Like::where("proveedor_id",$proveedor_id)->count();
+        
+        $error=false;
+        
+        return response()->json(['error'=>$error, 'msg'=>$msg,'likeuser'=>$likeuser, 'likes'=>$likes]);
+    }
+    
+    public function listarmenu(Request $request){
+        $error=true;
+        $msg="";
+        $proveedor_id=$request->input("proveedor_id");
+        $lista=null;
+        
+        $lista=Menu::Where('proveedor_id',$proveedor_id)->get();;
+        $error=false;
+        
+        return response()->json(['error'=>$error, 'msg'=>$msg,'lista'=>$lista]);
     }
 
 

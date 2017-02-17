@@ -15,7 +15,9 @@ class ApiAuthController extends Controller
         $credentials=$request->only('email','password');
         $token=null;
         $error=true;
-
+        $email=$request->input('email');
+        
+    
         try{
             if(!$token = JWTAuth::attempt($credentials)){
                 return response()->json(['msg'=>'credenciales invalidas', 'error'=>$error]);
@@ -24,7 +26,8 @@ class ApiAuthController extends Controller
             return response()->json(['msg'=>'algo salio mal', 'error'=>$error],500);
         }
         $error=false;
-        return response()->json(['token'=>$token, 'error'=>$error]);
+        $user=User::where('email',$email)->get()->first();
+        return response()->json(['user'=>$user, 'token'=>$token, 'error'=>$error]);
     }
 
     public function UserAuthToken(Request $request){
@@ -45,7 +48,7 @@ class ApiAuthController extends Controller
             //return response()->json(['token_absent'], $e->getStatusCode());
             return response()->json(['msg' => 'No se ha enviado el token', 'error' => $error]);
         }
-
+        
         return response()->json(['user' => $user, 'error' => $error]);
 
 
