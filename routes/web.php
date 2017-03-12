@@ -23,6 +23,7 @@ Route::group(['middleware' => 'cors'], function(){
     Route::post('/auth_token', 'ApiAuthController@UserAuthToken');
     Route::post('/ActualizarTipoUsuario', 'ApiAuthController@ActualizarTipoUsuario');
     Route::post('/GustosListar', 'ApiController@GustosListar');
+    Route::post('/GustosLimpiar', 'ApiController@GustosLimpiar');
     Route::post('/GustosAgregar', 'ApiController@GustosAgregar');
     Route::get('/imagen', 'ApiController@imagen');
     Route::get('/icon', 'ApiController@icon');
@@ -37,4 +38,8 @@ Route::group(['middleware' => 'cors'], function(){
     Route::post('/eliminarlike', 'ApiController@eliminarlike');
     Route::post('/likes', 'ApiController@likes');
     Route::post('/listarmenu', 'ApiController@listarmenu');
+    Route::post('/proveedorporusuario', 'ApiController@proveedorporusuario');
+    Route::post('/guardarmenu', 'ApiController@guardarmenu');
+    Route::post('/obtenermenu', 'ApiController@obtenermenu');
+    Route::post('/eliminarmenu', 'ApiController@eliminarmenu');
 });

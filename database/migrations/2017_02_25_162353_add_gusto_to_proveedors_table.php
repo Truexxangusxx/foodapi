@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddLatylenToProveedorsTable extends Migration
+class AddGustoToProveedorsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddLatylenToProveedorsTable extends Migration
     public function up()
     {
         Schema::table('proveedors', function (Blueprint $table) {
-            $table->string('lat')->nullable();
-            $table->string('lon')->nullable();
+            $table->integer('gusto_id')->unsigned()->nullable();
+            $table->foreign('gusto_id')->references('id')->on('gustos');
         });
     }
 
@@ -27,8 +27,7 @@ class AddLatylenToProveedorsTable extends Migration
     public function down()
     {
         Schema::table('proveedors', function (Blueprint $table) {
-            $table->dropColumn('lat');
-            $table->dropColumn('lon');
+            $table->dropColumn('gusto_id');
         });
     }
 }

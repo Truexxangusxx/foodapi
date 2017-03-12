@@ -9,6 +9,7 @@ use Storage;
 use App\Proveedor;
 use App\Like;
 use App\Menu;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
@@ -16,11 +17,38 @@ class ApiController extends Controller
 
             $error=true;
             $msg="";
+            $user_id=$request->input('user_id');
 
             $gustos=Gusto::all();
+            
+            
+            if($user_id!=null){
+                $seleccion = DB::select('select gusto_id from gusto_user where user_id = '.$user_id);
+                foreach($seleccion as $item){
+                    foreach($gustos as $gusto){
+                        if ($item->gusto_id==$gusto->id){
+                            $gusto->status=true;
+                        }
+                    }
+                }
+            }
+            
+            
             $error=false;
 
         return response()->json(['gustos'=>$gustos, 'error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function GustosLimpiar(Request $request){
+
+            $error=true;
+            $msg="";
+            $user_id=$request->input('user_id');
+            
+            DB::delete('delete from gusto_user where user_id='.$user_id);
+            $error=false;
+
+            return response()->json(['error'=>$error, 'msg'=>$msg]);
     }
 
     public function GustosAgregar(Request $request){
@@ -74,7 +102,13 @@ class ApiController extends Controller
     
     public function buscarimagen(Request $request){
         $imagen=$request->input('imagen');
-        $file = Storage::get('images/'.$imagen);
+        $carpeta=$request->input('carpeta');
+        if($carpeta!=null){
+            $file = Storage::get('images/'.$carpeta.'/'.$imagen);
+        }
+        else{
+            $file = Storage::get('images/'.$imagen);
+        }
 
         return response($file, 200)->header('Content-Type', 'image/jpg');
     }
@@ -89,25 +123,35 @@ class ApiController extends Controller
             $horario=$request->input('horario');
             $lat=$request->input('lat');
             $lon=$request->input('lon');
+            $gusto_id=$request->input('gusto_id');
             
             
-            if (Proveedor::where('id',$user_id)->count()==0){
+            if (Proveedor::where('user_id',$user_id)->count()==0){
                 $proveedor = new Proveedor;
             }
             else{
-                $proveedor = Proveedor::where('id',$user_id)->first();
+                $proveedor = Proveedor::where('user_id',$user_id)->first();
             }
             
             $proveedor->user_id=$user_id;
-            $proveedor->nombre=$nombre;
-            $proveedor->direccion=$direccion;
-            $proveedor->horario=$horario;
             
+            if ($nombre!=null){
+                $proveedor->nombre=$nombre;
+            }
+            if ($direccion!=null){
+                $proveedor->direccion=$direccion;
+            }
+            if ($horario!=null){
+                $proveedor->horario=$horario;
+            }
             if ($lat!=null){
                 $proveedor->lat=$lat;
             }
             if ($lon!=null){
                 $proveedor->lon=$lon;
+            }
+            if ($gusto_id!=null){
+                $proveedor->gusto_id=$gusto_id;
             }
             
             
@@ -148,13 +192,36 @@ class ApiController extends Controller
             return response()->json(['proveedor'=>$proveedor,'error'=>$error, 'msg'=>$msg]);
     }
     
+    public function proveedorporusuario(Request $request){
+            $error=true;
+            $msg="ocurrio un error inesperado";
+            
+            $user_id=$request->input('user_id');
+            
+            $proveedor=Proveedor::where('user_id',$user_id)->get()->first();
+            $error=false;
+            $msg="datos obtenidos sin problema";
+
+            return response()->json(['proveedor'=>$proveedor,'error'=>$error, 'msg'=>$msg]);
+    }
+    
     public function SubirImagen(Request $request){
+        $carpeta=$request->input('carpeta');
+        if($carpeta!=null){
+            $file = request()->file('archivo');
+            $file->storeAs('images/'.$carpeta, $file->getClientOriginalName());
+            return $file->getClientOriginalName();
+        }
+        else{
+            $file = request()->file('archivo');
+            $file->storeAs('images', $file->getClientOriginalName());
+            return $file->getClientOriginalName();
+        }
         
-        $file = request()->file('archivo');
-        $file->storeAs('images', $file->getClientOriginalName());
-        return $file->getClientOriginalName();
          
     }
+    
+    
     public function validarusuario(Request $request){
         
         $error=true;
@@ -199,8 +266,7 @@ class ApiController extends Controller
         $user_id=$request->input("user_id");
         $proveedor_id=$request->input("proveedor_id");
         
-        $like=Like::where("user_id",$user_id)->where("proveedor_id",$proveedor_id)->get()->first();
-        $like->delete();
+        Like::where("user_id",$user_id)->where("proveedor_id",$proveedor_id)->delete();
         $error=false;
         
         return response()->json(['error'=>$error, 'msg'=>$msg]);
@@ -231,6 +297,45 @@ class ApiController extends Controller
         
         return response()->json(['error'=>$error, 'msg'=>$msg,'lista'=>$lista]);
     }
+    
+    public function guardarmenu(Request $request){
+        $error=true;
+        $msg="";
+        
+        $menu=Menu::find($request->input("menu_id"));
+        if($menu == null){
+            $menu=new Menu;
+        }
+        $menu->proveedor_id=$request->input("proveedor_id");
+        $menu->nombre=$request->input("nombre");
+        $menu->precio=$request->input("precio");
+        $menu->descripcion=$request->input("descripcion");
+        $menu->descripcionlarga=$request->input("descripcionlarga");
+        $menu->save();
+        $error=false;
+        
+        return response()->json(['menu'=>$menu, 'error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function obtenermenu(Request $request){
+        $error=true;
+        $msg="";
+        
+        $menu=Menu::find($request->input("menu_id"));
+        $error=false;
+        return response()->json(['menu'=>$menu, 'error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function eliminarmenu(Request $request){
+        $error=true;
+        $msg="";
+        
+        $menu=Menu::find($request->input("menu_id"))->delete();
+        $error=false;
+        return response()->json(['error'=>$error, 'msg'=>$msg]);
+    }
+
+
 
 
 }
