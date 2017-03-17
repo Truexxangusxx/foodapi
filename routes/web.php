@@ -42,4 +42,5 @@ Route::group(['middleware' => 'cors'], function(){
     Route::post('/guardarmenu', 'ApiController@guardarmenu');
     Route::post('/obtenermenu', 'ApiController@obtenermenu');
     Route::post('/eliminarmenu', 'ApiController@eliminarmenu');
+    Route::post('/sendemail', 'ApiController@sendemail');
 });

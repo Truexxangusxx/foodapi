@@ -9,7 +9,9 @@ use Storage;
 use App\Proveedor;
 use App\Like;
 use App\Menu;
+use App\Mail\Recuperar;
 use Illuminate\Support\Facades\DB;
+use Hash;
 
 class ApiController extends Controller
 {
@@ -333,6 +335,49 @@ class ApiController extends Controller
         $menu=Menu::find($request->input("menu_id"))->delete();
         $error=false;
         return response()->json(['error'=>$error, 'msg'=>$msg]);
+    }
+    
+    public function sendemail(Request $request){
+        /*
+        $error=true;
+        $msg="";
+        $user = new User;
+        //$user->email=$request->input("email");
+        
+        \Mail::to('angus_acdc_w3@hotmail.com')->send(new Recuperar());
+        
+        $error=false;
+        return response()->json(['error'=>$error, 'msg'=>$msg]);
+        */
+        
+        $error=true;
+        $msg="";
+        $email=$request->input("email");
+        $nuevaclave=rand(100000, 999999);
+        
+        
+        
+
+        $user = User::where('email','cmedina@mail.com')->first();
+        $user->password = Hash::make($nuevaclave);
+        $user->save();
+        
+
+        $content = [
+    		'title'=> 'Itsolutionstuff.com mail', 
+    		'body'=> $nuevaclave,
+    		'button' => 'Click Here'
+    		];
+        
+        //borrar en produccion
+        $email="angus_acdc_w3@hotmail.com";
+    	
+    	\Mail::to($email)->send(new Recuperar($content));
+
+    	$error=false;
+    	$msg=$nuevaclave;
+        return response()->json(['error'=>$error, 'msg'=>$msg]);
+        
     }
 
 
